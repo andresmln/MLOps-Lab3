@@ -3,20 +3,39 @@ Unit Testing of the application's logic
 
 """
 
+import os
+import json
+import pytest
 from PIL import Image
 from mylib.logic import predict, resize, convert_to_grayscale, flatten_image
 
-
+def get_valid_classes():
+    """Carga las clases válidas desde el archivo JSON generado."""
+    if os.path.exists("classes.json"):
+        with open("classes.json", "r") as f:
+            return json.load(f)
+    return []
 def test_predict():
-    """Probar que predict devuelve una cadena válida."""
-    # Creamos una imagen vacía pequeña para probar
-    img = Image.new("RGB", (60, 30), color="red")
+    """Probar que predict devuelve una clase válida del modelo."""
+    # 1. Creamos una imagen dummy
+    # Usamos 224x224 que es lo que espera el modelo, aunque el resize interno lo arreglaría
+    img = Image.new("RGB", (224, 224), color="green")
+
+    # 2. Ejecutamos la predicción
     result = predict(img)
 
-    # Verificamos que el resultado sea una de las clases esperadas
+    # 3. Verificaciones
     assert isinstance(result, str)
-    assert result in ["gato", "perro", "coche", "avión"]
 
+    # Cargamos las clases reales del entrenamiento
+    valid_classes = get_valid_classes()
+
+    # Si tenemos clases (el json existe), verificamos que la predicción sea una de ellas
+    if valid_classes:
+        assert result in valid_classes, f"La predicción '{result}' no está en la lista de clases conocidas."
+    else:
+        # Si no hay json (en un entorno CI limpio sin entrenar), al menos que no dé error
+        assert len(result) > 0
 
 def test_resize():
     """Probar que resize cambia las dimensiones correctamente."""

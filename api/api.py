@@ -12,9 +12,9 @@ from PIL import Image
 from mylib.logic import predict, resize
 
 app = FastAPI(
-    title="MLOps Lab1 API",
-    description="API to classify and resize images for MLOps Lab1",
-    version="1.0.0",
+    title="MLOps Lab03 API",
+    description="API to classify and resize images for MLOps Lab3",
+    version="1.0.1",
 )
 
 # We use the templates folder to obtain HTML files
