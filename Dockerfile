@@ -34,6 +34,7 @@ COPY templates ./templates
 
 # --- IMPORTANTE LAB 3: Copiamos el modelo y las etiquetas ---
 COPY model.onnx .
+COPY model.onnx.data .
 COPY classes.json .
 
 # Exponemos el puerto
