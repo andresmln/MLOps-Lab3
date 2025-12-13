@@ -32,7 +32,7 @@ def test_predict():
 
     # Si tenemos clases (el json existe), verificamos que la predicción sea una de ellas
     if valid_classes:
-        assert result in valid_classes, f"La predicción '{result}' no está en la lista de clases conocidas."
+        assert result in valid_classes.values(), f"La predicción '{result}' no está en la lista de clases conocidas."
     else:
         # Si no hay json (en un entorno CI limpio sin entrenar), al menos que no dé error
         assert len(result) > 0
