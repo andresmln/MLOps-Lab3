@@ -1,3 +1,13 @@
+---
+title: MLOps Lab2 GUI
+emoji: 🐶
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: 4.19.2
+app_file: app.py
+pinned: false
+---
 # 🐶 MLOps Lab 3: Pet Breed Classifier
 
 ![CI Status](https://github.com/andresmln/MLOps-Lab3/actions/workflows/ci.yml/badge.svg)
