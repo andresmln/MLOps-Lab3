@@ -6,7 +6,8 @@ Direct implementation of MobileNetV2 inference.
 import io
 import os
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, Form, Request
+from fastapi import FastAPI, File, UploadFile, Request
+# Borramos 'Form' porque ya no lo vamos a forzar
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from PIL import Image
@@ -48,11 +49,12 @@ async def predict_endpoint(file: UploadFile = File(...)):
 
     return {"filename": file.filename, "prediction": prediction}
 
+# --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
 @app.post("/resize")
 async def resize_endpoint(
     file: UploadFile = File(...),
-    width: int = Form(...),
-    height: int = Form(...)
+    width: int = 416,  # Quitamos Form(...) -> Ahora acepta Query params (URL)
+    height: int = 416  # Quitamos Form(...) -> Ahora acepta Query params (URL)
 ):
     """Endpoint para redimensionar una imagen y devolverla."""
     contents = await file.read()
@@ -63,13 +65,13 @@ async def resize_endpoint(
 
     # Guardamos la imagen procesada en un buffer de memoria
     img_byte_arr = io.BytesIO()
-    # Guardamos como JPEG (puedes cambiar a PNG si prefieres)
-    resized_image.save(img_byte_arr, format='JPEG')
-    img_byte_arr.seek(0) # Rebobinamos al principio del archivo
+    
+    # CAMBIO: Usamos PNG para mejor calidad y coincidir con Gradio
+    resized_image.save(img_byte_arr, format='PNG')
+    img_byte_arr.seek(0) 
 
-    # Devolvemos la imagen directamente
-    return StreamingResponse(img_byte_arr, media_type="image/jpeg")
+    # CAMBIO: media_type actualizado a png
+    return StreamingResponse(img_byte_arr, media_type="image/png")
 
 if __name__ == "__main__":
     uvicorn.run("api.api:app", host="0.0.0.0", port=8000, reload=True)
-    
