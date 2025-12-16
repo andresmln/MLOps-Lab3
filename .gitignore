@@ -1,0 +1,21 @@
+# --- Python y Entorno ---
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# --- Datos y Logs de Entrenamiento (Lab 3) ---
+# ¡Muy importante ignorar esto para no bloquear GitHub!
+data/
+mlruns/
+results/
+plots/
+
+# --- IDEs y Sistema ---
+.vscode/
+.idea/
+.DS_Store
+*.onnx
+*.onnx.data
+*.onnx
+*.onnx.data
