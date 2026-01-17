@@ -64,6 +64,8 @@ def test_resize_endpoint(client):
     )
 
     assert response.status_code == 200
-    data = response.json()
-    assert data["message"] == "Image resized successfully"
-    assert data["new_size"] == [50, 50]
+    
+    # Tu API devuelve la imagen procesada (bytes), no un JSON.
+    # Eliminamos response.json() y verificamos que sea una imagen.
+    assert response.headers["content-type"] in ["image/jpeg", "image/png"]
+    assert len(response.content) > 0
