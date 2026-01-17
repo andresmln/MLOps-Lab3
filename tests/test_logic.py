@@ -1,6 +1,5 @@
 """
 Unit Testing of the application's logic
-
 """
 
 import os
@@ -15,10 +14,11 @@ def get_valid_classes():
         with open("classes.json", "r") as f:
             return json.load(f)
     return []
+
 def test_predict():
     """Probar que predict devuelve una clase válida del modelo."""
     # 1. Creamos una imagen dummy
-    # Usamos 224x224 que es lo que espera el modelo, aunque el resize interno lo arreglaría
+    # Usamos 224x224 que es lo que espera el modelo
     img = Image.new("RGB", (224, 224), color="green")
 
     # 2. Ejecutamos la predicción
@@ -32,7 +32,14 @@ def test_predict():
 
     # Si tenemos clases (el json existe), verificamos que la predicción sea una de ellas
     if valid_classes:
-        assert result in valid_classes.values(), f"La predicción '{result}' no está en la lista de clases conocidas."
+        # --- CORRECCIÓN ---
+        # Verificamos si valid_classes es un diccionario o una lista
+        if isinstance(valid_classes, dict):
+            lista_clases = valid_classes.values()
+        else:
+            lista_clases = valid_classes
+            
+        assert result in lista_clases, f"La predicción '{result}' no está en la lista de clases conocidas."
     else:
         # Si no hay json (en un entorno CI limpio sin entrenar), al menos que no dé error
         assert len(result) > 0
@@ -75,8 +82,5 @@ def test_flatten_image():
     assert len(flat_data) == width * height
 
     # Verificamos que el contenido sean los datos del píxel (verde)
-    assert flat_data[0] == (
-        0,
-        128,
-        0,
-    )  # or flat_data[0] == (0, 255, 0)    # El verde por defecto en PIL suele ser (0, 128, 0) o (0, 255, 0)
+    # El verde por defecto en PIL suele ser (0, 128, 0) o (0, 255, 0) dependiendo del modo
+    assert flat_data[0] in [(0, 128, 0), (0, 255, 0)]
