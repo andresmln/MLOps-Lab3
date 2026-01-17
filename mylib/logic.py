@@ -76,15 +76,26 @@ def preprocess_image(image):
 def predict(image):
     """Predice la raza usando el modelo ONNX."""
     if session is None:
-        # AQUÍ ESTÁ EL CAMBIO: Devolvemos el error real para verlo en el test
         return f"Error: Modelo no cargado. Causa: {load_error}"
 
     try:
         input_data = preprocess_image(image)
         output = session.run(None, {input_name: input_data})
-        prediction_index = np.argmax(output[0])
-        # Manejo de claves tipo string vs int
-        label = classes.get(str(prediction_index), classes.get(prediction_index, "Desconocido"))
+        prediction_index = int(np.argmax(output[0]))
+
+        # --- CORRECCIÓN AQUÍ: Soporte para Lista y Diccionario ---
+        if isinstance(classes, list):
+            # Si es lista (tu caso actual), accedemos por índice numérico
+            if 0 <= prediction_index < len(classes):
+                label = classes[prediction_index]
+            else:
+                label = "Desconocido"
+        elif isinstance(classes, dict):
+            # Si fuera diccionario, usamos .get()
+            label = classes.get(str(prediction_index), classes.get(prediction_index, "Desconocido"))
+        else:
+            label = "Error: Formato de clases desconocido"
+            
         return label
     except Exception as e:  # pylint: disable=broad-exception-caught
         return f"Error en predicción: {str(e)}"
