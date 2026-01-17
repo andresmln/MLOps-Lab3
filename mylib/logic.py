@@ -18,11 +18,12 @@ classes_path = os.path.join(root_dir, "classes.json")
 session = None
 input_name = None
 classes = {}
+load_error = "No iniciado"  # Variable para guardar el error exacto
 
 def load_resources():
     """Carga el modelo y las clases si no están cargados."""
     # pylint: disable=global-statement
-    global session, input_name, classes
+    global session, input_name, classes, load_error
 
     # 1. Cargar Modelo ONNX
     if session is None:
@@ -31,9 +32,12 @@ def load_resources():
                 session = rt.InferenceSession(model_path)
                 input_name = session.get_inputs()[0].name
                 print(f"✅ [Logic] Modelo cargado desde: {model_path}")
+                load_error = None  # Limpiamos el error si funciona
             else:
-                print(f"⚠️ [Logic] No se encuentra el modelo en: {model_path}")
+                load_error = f"Archivo no encontrado en: {model_path}"
+                print(f"⚠️ [Logic] {load_error}")
         except Exception as e:  # pylint: disable=broad-exception-caught
+            load_error = str(e)
             print(f"❌ [Logic] Error cargando modelo: {e}")
 
     # 2. Cargar Clases
@@ -72,13 +76,15 @@ def preprocess_image(image):
 def predict(image):
     """Predice la raza usando el modelo ONNX."""
     if session is None:
-        return "Error: Modelo no cargado"
+        # AQUÍ ESTÁ EL CAMBIO: Devolvemos el error real para verlo en el test
+        return f"Error: Modelo no cargado. Causa: {load_error}"
 
     try:
         input_data = preprocess_image(image)
         output = session.run(None, {input_name: input_data})
         prediction_index = np.argmax(output[0])
-        label = classes.get(str(prediction_index), "Desconocido")
+        # Manejo de claves tipo string vs int
+        label = classes.get(str(prediction_index), classes.get(prediction_index, "Desconocido"))
         return label
     except Exception as e:  # pylint: disable=broad-exception-caught
         return f"Error en predicción: {str(e)}"
